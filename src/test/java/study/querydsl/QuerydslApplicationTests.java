@@ -1,13 +1,13 @@
 package study.querydsl;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import entity.Hello;
-import entity.QHello;
+import study.querydsl.entity.Hello;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import study.querydsl.entity.QHello;
 
 import static org.assertj.core.api.Assertions.*;
 

@@ -1,7 +1,7 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.8'
-    id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.springframework.boot' version '3.2.3'  // 최신 안정 버전
+    id 'io.spring.dependency-management' version '1.1.4'
 }
 
 group = 'study'
@@ -24,35 +24,46 @@ repositories {
 }
 
 dependencies {
+    // Spring Boot 핵심 의존성
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Lombok
     compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'com.h2database:h2'
     annotationProcessor 'org.projectlombok:lombok'
+
+    // H2 Database
+    runtimeOnly 'com.h2database:h2'
+
+    // QueryDSL 최신 버전
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
+    annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+
+    // 테스트 관련 의존성
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-    // Querydsl Jakarta 기반 의존성 추가
-    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
-    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
-    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 }
 
-// (Optional) APT가 생성하는 Q 클래스들이 생성되는 기본 디렉토리를 소스셋에 포함하여 IDE에서 인식하도록 함
-def generatedSourcesDir = "$buildDir/generated/sources/annotationProcessor/java/main"
+// QueryDSL Q클래스 생성 위치를 지정
+def querydslDir = "src/main/generated"
+
+// QueryDSL Q클래스 소스 디렉토리 설정
 sourceSets {
-    main {
-        java {
-            srcDir generatedSourcesDir
-        }
-    }
+    main.java.srcDirs += [ querydslDir ]
+}
+
+// clean 태스크 실행시 생성된 Q클래스 삭제
+clean {
+    delete file(querydslDir)
 }
 
 tasks.named('test') {
     useJUnitPlatform()
 }
 
-clean {
-    delete file('src/main/generated')
+// Querydsl 설정부
+tasks.withType(JavaCompile) {
+    options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
 }
